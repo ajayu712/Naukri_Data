@@ -66,7 +66,12 @@ def transform(soupData):
         print(location.text)
 
         # Extracting Skills Required
-        
+        skills_list=[]
+        for job_skills in jobs.find('ul',class_='tags has-description'):
+            skills_list.append(job_skills.text)
+        print(skills_list)
+
+        print(" "*2)
 
 val = extract(2)
 transform(val)
