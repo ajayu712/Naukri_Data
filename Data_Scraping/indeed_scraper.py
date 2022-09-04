@@ -26,23 +26,47 @@ def transform(soupData):
     job_details = results.find_all('article',class_='jobTuple bgWhite br4 mb-8')
     for jobs in job_details:
         # Extracting Job Titles
-
-        # Extracting Company Name
-
-        # Extracting Job Ratings
-
-        # Extracting Job Reviews
+        title = jobs.find('a',class_='title fw500 ellipsis')
+        print(title.text)
 
         # Extracting Job URL
+        url = jobs.find('a',class_='title fw500 ellipsis').get('href')
+        print(url)
+
+        # Extracting Company Name
+        company = jobs.find('a',class_='subTitle ellipsis fleft')
+        print(company.text)
+
+        # Extracting Job Ratings
+        rating_span = jobs.find('span',class_='starRating fleft dot')
+        if rating_span is None:
+            continue
+        else:
+            ratings = rating_span.text
+            print(ratings)
+
+        # Extracting Job Reviews
+        review_a = jobs.find('a',class_='reviewsCount ml-5 fleft blue-text')
+        if review_a is None:
+            continue
+        else:
+            reviews = review_a.text
+            print(reviews)
 
         # Extracting Experience Required
+        exp_req = jobs.find(class_='fleft grey-text br2 placeHolderLi experience').find('span')
+        print(exp_req.text)
 
-        # Extracting Job Salary
+        # Extracting Job Salary        
+        salary = jobs.find(class_='fleft grey-text br2 placeHolderLi salary').find('span')
+        print(salary.text)
 
         # Extracting Job Location
+        location = jobs.find(class_='fleft grey-text br2 placeHolderLi location').find('span')
+        print(location.text)
 
         # Extracting Skills Required
-
+        
 
 val = extract(2)
 transform(val)
