@@ -5,6 +5,9 @@ from selenium import webdriver
 import time
 import pandas as pd
 
+# TODO: Implement Dynamic String for Job Type Search.(Data Analyst, Data Scientist)
+
+
 # Function for Accessing the Data related to Naukri.com
 def extract(page):
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'}
@@ -20,8 +23,9 @@ def extract(page):
     driver.close
     return soupData
 
+# Function for Scrapping the data and tranforming it in a Data Frame
 def transform(soupData):
-    df = pd.DataFrame(columns=['Title','Company','Ratings','Reviews','URL','Experience','Salary','Location','Skills Required'])
+    df = pd.DataFrame(columns=['Title','Company','Ratings','Reviews','URL','Experience','History','Salary','Location','Skills Required'])
     results = soupData.find(class_='list')
 
     job_details = results.find_all('article',class_='jobTuple bgWhite br4 mb-8')
@@ -42,7 +46,7 @@ def transform(soupData):
         # Extracting Job Ratings
         rating_span = jobs.find('span',class_='starRating fleft dot')
         if rating_span is None:
-            continue
+            ratings='Data Not Available'
         else:
             ratings = rating_span.text
             # print(ratings)
@@ -50,32 +54,71 @@ def transform(soupData):
         # Extracting Job Reviews
         review_a = jobs.find('a',class_='reviewsCount ml-5 fleft blue-text')
         if review_a is None:
-            continue
+            reviews='Data Not Available'
         else:
             reviews = review_a.text
             # print(reviews)
 
-        # Extracting Experience Required
-        exp_req = jobs.find(class_='fleft grey-text br2 placeHolderLi experience').find('span')
+         # Extracting Experience Required
+        exp_req_val = jobs.find('li',class_='fleft grey-text br2 placeHolderLi experience')
+        if exp_req_val is None:
+            experience='Data Not Available'
+        else:
+            exp_span = exp_req_val.find('span',class_='ellipsis fleft fs12 lh16')
+            if exp_span is None:
+                experience='Data Not Available'
+            else:
+                experience = exp_span.text
         # print(exp_req.text)
 
+        # Number of days since job posted
+        hist = jobs.find("div",["type br2 fleft grey","type br2 fleft green"])
+        Post_Hist = hist.find('span',class_='fleft fw500')
+        if Post_Hist is None:
+            Post_History=='Data Not Available'
+        else:
+            Post_History = Post_Hist.text
+
         # Extracting Job Salary        
-        salary = jobs.find(class_='fleft grey-text br2 placeHolderLi salary').find('span')
+        salary_val = jobs.find(class_='fleft grey-text br2 placeHolderLi salary').find('span')
+        if salary_val is None:
+            salary='Data Not Available'
+        else:
+            salary = salary_val.text
         # print(salary.text)
 
         # Extracting Job Location
-        location = jobs.find(class_='fleft grey-text br2 placeHolderLi location').find('span')
+        location_val = jobs.find(class_='fleft grey-text br2 placeHolderLi location').find('span')
+        if location_val is None:
+            location_val='Data Not Available'
+        else:
+            location = location_val.text
         # print(location.text)
 
         # Extracting Skills Required
         skills_list=[]
-        for job_skills in jobs.find('ul',class_='tags has-description'):
-            skills_list.append(job_skills.text)
+        jobs_val = jobs.find('ul',class_='tags has-description')
+        if jobs_val is None:
+            jobs_val='Data Not Available'
+        else:
+            for job_skills in jobs_val:
+                skills_list.append(job_skills.text)
         # print(skills_list)
 
         # print(" "*2)
-        df = df.append({'URL':url,'Title':title.text,'Company':company.text,'Ratings':ratings,'Reviews':reviews,'Experience':exp_req.text,'Salary':salary.text,'Location':location.text,'Skills Required':skills_list},ignore_index=True)
-    print(df.head())
+        df = df.append({'URL':url,'Title':title.text,'Company':company.text,'Ratings':ratings,'Reviews':reviews,'Experience':experience,'History':Post_History,'Salary':salary,'Location':location,'Skills Required':skills_list},ignore_index=True)
+    # print(df.head())
+    load(df)
 
-val = extract(2)
-transform(val)
+# Generating Excel from the data frame created
+def load(df):
+    # Generating Excel of the Scrapped Data
+    df.to_csv("D:/Project_Miscellaneous/DA_Project/Naukri_Data/Naukri_Data/Data_Scraping/Naukri_Data_Raw.csv",mode='a',index=False,header=False)
+
+pageExtracted = int(input("Enter Number of Pages to be Extracted: "))
+for i in range(pageExtracted):
+    data_scraped = extract(i)
+    transform(data_scraped)
+
+# val = extract(2)
+# transform(val)
