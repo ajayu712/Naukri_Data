@@ -1,4 +1,5 @@
 # Imports Required
+from matplotlib.ticker import NullFormatter
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -46,7 +47,7 @@ def transform(soupData):
         # Extracting Job Ratings
         rating_span = jobs.find('span',class_='starRating fleft dot')
         if rating_span is None:
-            ratings='Data Not Available'
+            ratings = None
         else:
             ratings = rating_span.text
             # print(ratings)
@@ -54,35 +55,39 @@ def transform(soupData):
         # Extracting Job Reviews
         review_a = jobs.find('a',class_='reviewsCount ml-5 fleft blue-text')
         if review_a is None:
-            reviews='Data Not Available'
+            reviews=None
         else:
             reviews = review_a.text
             # print(reviews)
 
-         # Extracting Experience Required
+        #Extracting Experience Required
         exp_req_val = jobs.find('li',class_='fleft grey-text br2 placeHolderLi experience')
+        # print(exp_req_val)
         if exp_req_val is None:
-            experience='Data Not Available'
+            experience=None
         else:
-            exp_span = exp_req_val.find('span',class_='ellipsis fleft fs12 lh16')
+            # print(exp_req_val)
+            exp_span = exp_req_val.find('span',class_='ellipsis fleft fs12 lh16 expwdth')
+            # print(exp_span)
             if exp_span is None:
-                experience='Data Not Available'
+                experience=None
             else:
                 experience = exp_span.text
-        # print(exp_req.text)
+        # print(experience)
+
 
         # Number of days since job posted
         hist = jobs.find("div",["type br2 fleft grey","type br2 fleft green"])
         Post_Hist = hist.find('span',class_='fleft fw500')
         if Post_Hist is None:
-            Post_History=='Data Not Available'
+            Post_History==None
         else:
             Post_History = Post_Hist.text
 
         # Extracting Job Salary        
         salary_val = jobs.find(class_='fleft grey-text br2 placeHolderLi salary').find('span')
         if salary_val is None:
-            salary='Data Not Available'
+            salary=None
         else:
             salary = salary_val.text
         # print(salary.text)
@@ -90,7 +95,7 @@ def transform(soupData):
         # Extracting Job Location
         location_val = jobs.find(class_='fleft grey-text br2 placeHolderLi location').find('span')
         if location_val is None:
-            location_val='Data Not Available'
+            location_val=None
         else:
             location = location_val.text
         # print(location.text)
@@ -99,7 +104,7 @@ def transform(soupData):
         skills_list=[]
         jobs_val = jobs.find('ul',class_='tags has-description')
         if jobs_val is None:
-            jobs_val='Data Not Available'
+            jobs_val=None
         else:
             for job_skills in jobs_val:
                 skills_list.append(job_skills.text)
